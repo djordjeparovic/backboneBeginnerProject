@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Car Demo Backbone App v01</title>
+	<style type="text/css">
+		article {
+    		background-color:#FFCC66;
+    		padding-left: 7%;
+			}
+
+		article:hover {
+    		background-color:#FFCC99;
+			}	
+		.btn {
+			width: 110px;
+			height: 25px;
+			font-size: 15px;
+			padding: 0;
+			margin: 2px;
+			border: 1px;
+			font-weight: bold;
+			font-family: helvatica;
+		}
+		label {
+			font-size: 15px;
+			font-weight: bold;
+			font-family: helvatica;
+		}
+
+
+</style>
+</head>
+<body>
+
+<div id="listOfCars"></div>
+
+<script id="listCarItemView" type="text/template">
+	<article>
+		<div class="imageDiv"></div>
+		<div>
+			<p><%= title %></p>
+			<p>Price: <%= price %></p>
+			<p>Mileage: <%= mileage %></p>
+			<p>Transmission: <%= transmission %></p>
+		</div>
+		<div>
+			<input type="button" value="More Info" class="btn btn-moreInfo">
+			<input type="button" value="Edit" class="btn btn-edit">
+			<label>Compare<input type="checkbox" name="compareChec" value="value"></label>
+		</div>
+	</article>
+</script>
+
+<script id="listCarItemEdit" type="text/template">
+	<article>
+		<div class="imageDiv"></div>
+		<div>
+			<p>Title : <input type="text" id="inputTitle" value="<%= title %>"></p>
+			<p>Price : <input type="text" id="inputPrice" value=<%= price %>></p>
+			<p>Mileage : <input type="text" id="inputMileage" value=<%= mileage %>></p>
+			<p>Transmission : <input type="text" id="inputTransmission" value=<%= transmission %>></p>
+		</div>
+		<div>
+			<input type="button" value="Cancel" class="btn btn-cancel">
+			<input type="button" value="Save" class="btn btn-save">
+		</div>
+	</article>
+</script>
+
+<script type="text/javascript"src="bower_components/jquery/dist/jquery.js"></script>
+<script type="text/javascript" src="bower_components/underscore/underscore.js"></script>
+<script type="text/javascript" src="bower_components/backbone/backbone.js"></script>
+
+<script type="text/javascript" src="js/main.js"></script>
+
+</body>
+</html>
