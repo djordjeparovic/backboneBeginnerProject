@@ -2,80 +2,68 @@
 	var debug = function (v){
 		console.log(v);   
 	};
-	/* Imaginarna baza podataka */
+	/* "database" */
 	window.CarData = [
-	{
-			id: "1",
+		{
+			id: 1,
 			title : "Ford Freemont",
-			price : "$12,223",
-			mileage : "190,343",
+			price : 2223,
+			mileage : 190343,
 			transmission : "Automatic",
-			noOfPics : "3",
+			noOfPics : 3,
 			imageUrl: "google.rs",
-			selected : "false"
+			selected : false
 		},
 		{
-			id: "2",
+			id: 2,
 			title : "Dodge New",
-			price : "$45,000",
-			mileage : "34,200",
+			price : 45000,
+			mileage : 34200,
 			transmission : "Manual",
-			noOfPics : "1",
+			noOfPics : 1,
 			imageUrl: "google.rs",
-			selected : "false"
+			selected : false
 		},
 		{
-			id: "3",
+			id: 3,
 			title : "Mercedes S",
-			price : "$30,100",
-			mileage : "200,190",
+			price : 30100,
+			mileage : 200190,
 			transmission : "Manual",
-			noOfPics : "2",
+			noOfPics : 2,
 			imageUrl: "google.rs",
-			selected : "false"
+			selected : false
 		},
 		{
-			id: "4",
+			id: 4,
 			title : "Golf kec",
-			price : "$200",
-			mileage : "300,000",
+			price : 200,
+			mileage : 300000,
 			transmission : "Manual",
-			noOfPics : "1",
+			noOfPics : 1,
 			imageUrl: "google.rs",
-			selected : "false"
+			selected : false
 		},
 		{
-			id: "5",
+			id: 5,
 			title : "BMW i3",
-			price : "$86,000",
-			mileage : "20",
+			price : 86000,
+			mileage : 20,
 			transmission : "Automatic",
-			noOfPics : "10",
+			noOfPics : 10,
 			imageUrl: "google.rs",
-			selected : "false"
+			selected : false
 		}
-		// ,
-		// {
-		// 	title : "",
-		// 	price : "",
-		// 	mileage : "",
-		// 	transmission : "",
-		// 	noOfPics : "",
-		// 	imageUrl: "",
-		//	selected : "false"  // ovaj parametar se koristi kod compare view, 
-		//inace moze se i bez njega implementirati resenje sa eventima
-		// }
 	];
 
-	/* Defining aplication */
 	window.App = {
 		Models : {}, 
 		Views : {},
-		Collections : {}
+		Collections : {}, 
+		Router : {}
 	};
 
 	window.template = function (id) {
-		templ = $( '#' + id).html(); // debug
 		return _.template( $('#' + id).html() );
 	};
 
@@ -87,7 +75,7 @@
 			transmission : "",
 			noOfPics : "",
 			imageUrl: ""
-			// dealer : ""  ako je prazno - niko, ako ima nesto poseban
+			// dealer : ""  for extending views (unimplemented)
 		},
 
 		validate : function (attrs, opts) {
@@ -101,17 +89,17 @@
 
 	App.Views.ListCarItem = Backbone.View.extend({
 
-		 templateShow : template('listCarItemView'), 
-		 templateEdit : template('listCarItemEdit'), 
+		templateShow : template('listCarItemView'), 
+		templateEdit : template('listCarItemEdit'), 
 
 		initialize : function () { 
 			debug("[ called : App.Views.ListCarItem.intialize() ]");
 			this.render(this.templateShow);
-			//this.render(this.templateEdit);
 		},
 
 		render : function (template) {
 			debug("[ called : App.Views.listCarItem.render() ]");
+			this.$el.empty();
 			this.$el.html( template( this.model.toJSON() ) );
 			return this;
 		},
@@ -124,14 +112,19 @@
 			'click :button.btn-save' : 'save'
 		},
 
-		moreInfo : function () {
-			alert("Unimplemented. moreInfo will trigger new route, where will be possible " +
-			"show all relevant information");
+		moreInfo : function (id) {
+			var carId = $(id.currentTarget.parentElement.parentElement).find('#carDiv').attr('class');
+			routes.navigate('details/' + carId, { trigger : true });
+			// #TODO
 		}, 
 
 		clickedCheck : function (e) {
-			// #TODO if e in collection remove(e) else push(e)
-			alert("Unimplemented. clickedCheck will trigger some operations on new View.");
+			var parent = e.currentTarget.parentElement.parentElement.parentElement;
+			var id = parseInt( $(parent).find('#carDiv').attr('class') );
+			/* Find selected model in carsCollection and set selected attribute */
+			var oCar = carsCollection.get({id : id});
+			oCar.get('selected')?oCar.set({ selected : false }):oCar.set({ selected : true });
+			// side conclusion : Backbone.Collection takes only references to objects
 		}, 
 
 		edit : function () {
@@ -159,16 +152,86 @@
 			var parent = e.currentTarget.parentElement.parentElement;
 			return $(parent).find('#' + id)[0].value;
 		}
-
 	});
 
+	App.Views.DetailedCarView = Backbone.View.extend({
+		el : $("#detailedCarView"),
+
+		initialize : function () {
+		}, 
+
+		render :function (id) {
+			// this.$el.empty(); // Nepotrebno, jer se taj metod pozove 
+			// unutar $el.html(), $.html() interno poziva $.empty(), 
+			// a taj metod detachuje i evente, ne samo html.
+			this.$el.append("Details of car: " + id);
+			return this;
+		}, 
+
+		hide : function () {
+			this.$el.empty();
+		}
+	});
+	
+	App.Views.TopPageView = Backbone.View.extend({
+		el : $('#sortSelector'),
+
+		initialize : function () {
+			this.render('');
+		},
+
+		render : function (opt) {
+			debug("[ called : App.Views.TopPageView.render(" + opt + ") ]");
+			//this.$el.empty(); // OVDE JE BUG
+			if ( opt === 'details' ){
+				var btn = '<input type="button" value="Go Back" class="btn btn-goBack">';
+				this.$el.html(btn);
+			}else {
+				//alert("Sorting isn't immplemented yet");
+			}
+			return this;
+		},
+
+		events : {
+			'click :button.btn-goBack' : 'goBack'
+		}, 
+
+		goBack : function (){
+			routes.navigate('', {trigger : true});
+		}, 
+		hide : function () { 
+			this.$el.empty();
+		}
+
+	});
+	var topPageView = new App.Views.TopPageView;
+
+	App.Views.MiniCompareView = Backbone.View.extend({
+		initialize : function () {
+
+		}, 
+
+		render : function () {
+
+		}
+	});
+	
+
+
 	App.Views.ListCompareCarItem = Backbone.View.extend({
+
+		template : template('compareCars'),
+
 		intialize : function () { 
 		
 		},
 
 		render : function () {
+			var table = $('<table></table>'); 
 			this.collection.each(this.addOne, this);
+
+			this.$el.html( table );
+			return this;
 		}, 
 
 		// 	title : "Ford Freemont",
@@ -197,13 +260,16 @@
 	});
 
 	App.Views.CarsView = Backbone.View.extend({
-		tagName: 'div',
+		el : $('#listOfCars'),
 		initialize : function (){
 			debug("[ called: App.Views.CarsView() ]");
-			this.render();
+			//this.render(); // render is called in route '' so this render is not necessary
 		},
-
+/* Need to refactor this part of code */
 		render : function (){
+			carsDetailedView.hide();
+			topPageView.hide();
+			this.$el.empty();
 			this.collection.each(this.addOne ,this);
 			return this;
 		},
@@ -212,27 +278,83 @@
 			var carView = new App.Views.ListCarItem({ model : car });
 			this.$el.append( carView.el );
 			return this;
+		}, 
+		hide : function () {
+			this.$el.empty();
 		}
 	});
+/* End of refactorisation */
+
+ 	var carsCollection = new App.Collections.Cars( CarData );
+ 	var allCarsView = new App.Views.CarsView({ collection : carsCollection });
+
+ 	var carsDetailedView = new App.Views.DetailedCarView; 
+
+	App.Router = Backbone.Router.extend({
+		routes : {
+			'' : 'index', 
+			'details/:id' : 'moreInfo',
+
+			'*other' : 'unknownRoute' // handle unknown router (probably go to index)
+		}, 
 
 
-	App.Collections.Compare = Backbone.Collection.extend({
+		index : function () { 
+			// $('#sortSelector').empty();
 
+			allCarsView.render();
+			//$('#listOfCars').append(allCarsView.el);
+			//allCarsView.render();
+		}, 
+
+		moreInfo : function (id) {
+			// $('#sortSelector').empty(); // BUG
+			// $('#sortSelector').html(topPageView.el); //BUG
+			topPageView.render('details');
+			// $('#listOfCars').empty(); 
+			carsDetailedView.render(id);
+			//$('#detailedCarView').append( carsDetailedView.el );
+			// topPageView.render('details');
+			allCarsView.hide();
+		}, 
+
+		unknownRoute : function (url){
+			alert("Unknown URL : " + url);
+		}
 	});
+	var routes = new App.Router; 
+	Backbone.history.start(); // Start monitoring hash changes 
+
+	// App.Collections.Compare = Backbone.Collection.extend({
+	// 	// collection holds pairs [{id : id}, {id : id}, ... ]
+	// 	toggleEl : function (el) {
+	// 		if ( ! this.get(el) ) {
+	// 			this.add(el);
+	// 		} else {
+	// 			this.remove(el);
+	// 		}
+	// 		console.log(this);
+	// 	}
+	// });
+	// var compareCollection = new App.Collections.Compare;
 
 	App.Views.CompareView = Backbone.View.extend({
-		// #TODO
+		tagName : 'div.mainDiv', 
+
+		initialize : function () {
+			this.render();
+		}, 
+
+		render : function () {
+			this.$el.append("trlala");
+			// prikupi podatke i napakuj u niz
+			// napakuj u div, sa sub divovima 
+
+			return this;
+		}
 	});
+	var carsCompareView = new App.Views.CompareView;
 
-
-/* Using application */
-eV = undefined; //variable exposed to global scope (testing/studying purpose)
-
-var automobili = new App.Collections.Cars( CarData );
-debug(automobili);
-var automobiliView = new App.Views.CarsView({ collection : automobili });
-$('#listOfCars').append(automobiliView.el);
-eV = automobiliView;
 }());
 
 

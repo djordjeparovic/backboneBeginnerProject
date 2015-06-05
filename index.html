@@ -3,9 +3,23 @@
 <head>
 	<title>Car Demo Backbone App v01</title>
 	<style type="text/css">
+		#page {
+			margin-top: 50px;
+			margin-bottom: 50px;
+		}
+		#sortSelector {
+
+		}
+		#miniCompareView {
+
+		}
 		article {
-    		background-color:#FFCC66;
+			width: 70%;
+			margin-left: 8%;
+			margin-right: 8%;
     		padding-left: 7%;
+    		padding-right: 7%;
+    		background-color:#FFCC66;
 			}
 
 		article:hover {
@@ -26,22 +40,53 @@
 			font-weight: bold;
 			font-family: helvatica;
 		}
-
+		.mainDiv {
+			width: 100%;
+		    height: 100%;
+		    margin-left: 0;
+		    margin-right: auto;
+		    margin-top: 2%;
+		    border-width: 1px;
+		    border-style: solid;;
+		    border-color: #000000;
+		    overflow: hidden;
+		}
+		.subDiv {
+			/* width: 20%; Jedino mesto izmene */
+		    height: 100%;
+		    border-width: 1px;
+		    border-color: #000;
+		    border-style: solid;
+		    box-sizing:border-box;
+		    float: left; 
+		}
+		.hide {
+			display: none;
+		}
 
 </style>
 </head>
 <body>
+<!-- mini ribbon at the top [fixed] -->
+<div id="sortSelector"></div>
 
+<div id="page">
 <div id="listOfCars"></div>
+<div id="compareCars"></div>
+<div id="detailedCarView"></div>
+</div>
+<!-- mini ribbon at the bottom [fixed] -->
+<div id="miniCompareView"></div> 
+
 
 <script id="listCarItemView" type="text/template">
 	<article>
 		<div class="imageDiv"></div>
-		<div>
-			<p><%= title %></p>
-			<p>Price: <%= price %></p>
-			<p>Mileage: <%= mileage %></p>
-			<p>Transmission: <%= transmission %></p>
+		<div id="carDiv" class="<%= id %>">
+			<p id="title"><%= title %></p>
+			<p id="price">Price: <%= price %></p>
+			<p id="mileage">Mileage: <%= mileage %></p>
+			<p id="transmission">Transmission: <%= transmission %></p>
 		</div>
 		<div>
 			<input type="button" value="More Info" class="btn btn-moreInfo">
