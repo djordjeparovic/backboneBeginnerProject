@@ -4,92 +4,21 @@
 		//console.log(v);   
 	};
 	/* "database" */
-	window.CarData = [
-		{
-			id: 1,
-			title : "Ford Freemont",
-			price : 2223,
-			mileage : 190343,
-			transmission : "Automatic",
-			noOfPics : 3,
-			imageUrl: "images/freemont.jpg",
-			selected : "", 
-			dealer : "", 
-			phone : "064 123 1234"
-		},
-		{
-			id: 2,
-			title : "Dodge X",
-			price : 45000,
-			mileage : 34200,
-			transmission : "Manual",
-			noOfPics : 1,
-			imageUrl: "images/dodge.jpg",
-			selected : "",
-			dealer : "Mishkovic",
-			phone : "064 123 1234"
-		},
-		{
-			id: 3,
-			title : "Mercedes S",
-			price : 30100,
-			mileage : 200190,
-			transmission : "Manual",
-			noOfPics : 2,
-			imageUrl: "images/mercedes.jpg",
-			selected : "",
-			dealer : "",
-			phone : "064 123 1234"
-		},
-		{
-			id: 4,
-			title : "Golf kec",
-			price : 200,
-			mileage : 300000,
-			transmission : "Manual",
-			noOfPics : 1,
-			imageUrl: "images/golf.jpg",
-			selected : "",
-			dealer : "",
-			phone : "064 123 1234"
-		},
-		{
-			id: 5,
-			title : "BMW i3",
-			price : 86000,
-			mileage : 20,
-			transmission : "Automatic",
-			noOfPics : 10,
-			imageUrl: "images/bmw.jpg",
-			selected : "",
-			dealer : "BWM Belgrade",
-			phone : "064 123 1234"
-		},
-		{
-			id: 6,
-			title : "Zastava Fico 850",
-			price : 1000,
-			mileage : 200000,
-			transmission : "Manual",
-			noOfPics : 10,
-			imageUrl: "images/fico.jpg",
-			selected : "",
-			dealer : "",
-			phone : "064 123 1234"
-		},
-		{
-			id: 7,
-			title : "Range Rover",
-			price : 95000,
-			mileage : 150000,
-			transmission : "Manual",
-			noOfPics : 10,
-			imageUrl: "images/rover.jpg",
-			selected : "",
-			dealer : "",
-			phone : "064 123 1234"
-		}
-	];
+	window.CarData=[{id:1,title:"Ford Freemont",price:2223,mileage:190343,
+	transmission:"Automatic",noOfPics:3,imageUrl:"images/freemont.jpg",selected:"",dealer:"",
+	phone:"064 123 1234"},{id:2,title:"Dodge X",price:45e3,mileage:34200,
+	transmission:"Manual",noOfPics:1,imageUrl:"images/dodge.jpg",selected:"",
+	dealer:"Mishkovic",phone:"064 123 1234"},{id:3,title:"Mercedes S",price:30100,
+	mileage:200190,transmission:"Manual",noOfPics:2,imageUrl:"images/mercedes.jpg",
+	selected:"",dealer:"",phone:"064 123 1234"},{id:4,title:"Golf kec",price:200,
+	mileage:3e5,transmission:"Manual",noOfPics:1,imageUrl:"images/golf.jpg",
+	selected:"",dealer:"",phone:"064 123 1234"},{id:5,title:"BMW i3",price:86e3,
+	mileage:20,transmission:"Automatic",noOfPics:10,imageUrl:"images/bmw.jpg",
+	selected:"",dealer:"BWM Belgrade",phone:"064 123 1234"},{id:6,title:"Zastava Fico 850",
+	price:1e3,mileage:2e5,transmission:"Manual",noOfPics:10,imageUrl:"images/fico.jpg",
+	selected:"",dealer:"",phone:"064 123 1234"},{id:7,title:"Range Rover",price:95e3,
+	mileage:15e4,transmission:"Manual",noOfPics:10,imageUrl:"images/rover.jpg",
+	selected:"",dealer:"",phone:"064 123 1234"}];
 
 	window.App = {
 		Models : {}, 
@@ -350,8 +279,11 @@
 		}, 
 
 		render : function () {
-			var btnSortPrice = '<input type="button" value="Sort by Price" class="btn btn-sort-price">';
-			this.$el.append( btnSortPrice );			
+			var btnSort = '<input type="button" value="Sort by Price" ' +
+			'class="btn btn-sort-price">' + 
+			'<input type="button" value="Sort by Mileage" ' +
+			'class="btn btn-sort-mileage">';
+			this.$el.append( btnSort );			
 		},  
 
 		show : function () { 
@@ -363,13 +295,15 @@
 		},
 
 		events : { 
-			'click :button.btn-sort-price' : 'sortByPrice'
+			'click :button.btn-sort-price' : 'sortByPrice',
+			'click :button.btn-sort-mileage' : 'sortByMileage'
 		},
 
 		/* da li je bolje imati evente ili samo staviti klasican href 
 		tj. da li da pravim events objekat ili da dugme bude href (ako moze)
 		*/
 		priceSortOrder : 1, 
+		mileageSortOrder : 1,
 
 		sortByPrice : function () {
 			this.priceSortOrder *= -1; 
@@ -392,6 +326,33 @@
 		sortByPriceDown : function () {
 			carsCollection.comparator = function(model) {
 				return -model.get('price'); 
+			};
+			carsCollection.sort();
+			// ovo treba da bude hendlovano preko eventa u carsView i carsCollection 
+			allCarsView.render();
+		}, 
+
+		sortByMileage : function () {
+			this.mileageSortOrder *= -1; 
+			if ( this.mileageSortOrder === 1 ) {
+				this.sortByMileageUp();
+			}else {
+				this.sortByMileageDown();
+			}
+		}, 
+
+		sortByMileageUp : function () { 
+			carsCollection.comparator = function(model) {
+				return model.get('mileage'); 
+			};
+			carsCollection.sort();
+			// ovo treba da bude hendlovano preko eventa u carsView i carsCollection 
+			allCarsView.render();
+		}, 
+
+		sortByMileageDown : function () {
+			carsCollection.comparator = function(model) {
+				return -model.get('mileage'); 
 			};
 			carsCollection.sort();
 			// ovo treba da bude hendlovano preko eventa u carsView i carsCollection 
@@ -501,7 +462,5 @@
 
 	var routes = new App.Router; 
 	Backbone.history.start(); // Start monitoring hash changes 
-
-
 
 }());
