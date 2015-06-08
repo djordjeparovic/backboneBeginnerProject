@@ -257,11 +257,7 @@
 	var topPageView = new App.Views.GoBackView;
 	
 	App.Collections.Cars = Backbone.Collection.extend({
-		model : App.Models.Car, 
-
-		sortByPrice : function () { 
-
-		}
+		model : App.Models.Car
 	});
 
 	App.Views.CarsView = Backbone.View.extend({
@@ -299,7 +295,6 @@
 		el : $('#compareCars'),
 
 		initialize : function () {
-			//this.render();
 		}, 
 
 		render : function () {
@@ -352,7 +347,6 @@
 		},
 
 		hide : function () {
-
 			this.$el.hide();
 		},
 
@@ -361,7 +355,7 @@
 		},
 
 		/* da li je bolje imati evente ili samo staviti klasican href 
-		tj. da li da pravim events objekat ili da dugme bude href
+		tj. da li da pravim events objekat ili da dugme bude href (ako moze tako)
 		*/
 		priceSortOrder : 1, 
 
