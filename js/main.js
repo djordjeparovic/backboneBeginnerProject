@@ -64,6 +64,18 @@
 			selected : "",
 			dealer : "BWM Belgrade",
 			phone : "064 123 1234"
+		},
+		{
+			id: 6,
+			title : "Zastava Fico 850",
+			price : 1000,
+			mileage : 200000,
+			transmission : "Manual",
+			noOfPics : 10,
+			imageUrl: "images/fico.jpg",
+			selected : "",
+			dealer : "",
+			phone : "064 123 1234"
 		}
 	];
 
@@ -245,7 +257,11 @@
 	var topPageView = new App.Views.GoBackView;
 	
 	App.Collections.Cars = Backbone.Collection.extend({
-		model : App.Models.Car
+		model : App.Models.Car, 
+
+		sortByPrice : function () { 
+
+		}
 	});
 
 	App.Views.CarsView = Backbone.View.extend({
@@ -320,18 +336,63 @@
 	var carsCompareView = new App.Views.CompareView( { collection : carsCollection } );
 
 	App.Views.RibbonSort = Backbone.View.extend({
-		el : $('sortSelector'), 
+		el : $('#sortSelector'), 
 
-		intialize : function () {
-
+		initialize : function () {
+			this.render();
 		}, 
 
 		render : function () {
+			var btnSortPrice = '<input type="button" value="Sort by Price" class="btn btn-sort-price">';
+			this.$el.append( btnSortPrice );			
+		},  
 
+		show : function () { 
+			this.$el.show();
+		},
+
+		hide : function () {
+
+			this.$el.hide();
+		},
+
+		events : { 
+			'click :button.btn-sort-price' : 'sortByPrice'
+		},
+
+		/* da li je bolje imati evente ili samo staviti klasican href 
+		tj. da li da pravim events objekat ili da dugme bude href
+		*/
+		priceSortOrder : 1, 
+
+		sortByPrice : function () {
+			this.priceSortOrder *= -1; 
+			if ( this.priceSortOrder === 1 ) {
+				this.sortByPriceUp();
+			}else {
+				this.sortByPriceDown();
+			}
+		},
+
+		sortByPriceUp : function () { 
+			carsCollection.comparator = function(model) {
+				return model.get('price'); 
+			};
+			carsCollection.sort();
+			// ovo treba da bude hendlovano preko eventa u carsView i carsCollection 
+			allCarsView.render();
+		}, 
+
+		sortByPriceDown : function () {
+			carsCollection.comparator = function(model) {
+				return -model.get('price'); 
+			};
+			carsCollection.sort();
+			// ovo treba da bude hendlovano preko eventa u carsView i carsCollection 
+			allCarsView.render();
 		}
-
-		// da li je bolje imati evente ili samo staviti klasican href
   	});
+  	var miniRibbonSort = new App.Views.RibbonSort;
 
 
   		App.Views.MiniCompareView = Backbone.View.extend({
@@ -397,12 +458,14 @@
 			allCarsView.render();
 			carsCompareView.hide();
 			miniCompareView.render();
+			miniRibbonSort.show();
 		}, 
 
 		moreInfo : function (id) {
 			topPageView.show();
 			carsDetailedView.render(id);
 			allCarsView.hide();
+			miniRibbonSort.hide();
 		}, 
 
 		unknownRoute : function (url){
@@ -412,6 +475,7 @@
 		compareCars : function () {
 			carsCompareView.render();
 			topPageView.show();
+			miniRibbonSort.hide();
 		}, 
 
 		sort : function ( type ){
