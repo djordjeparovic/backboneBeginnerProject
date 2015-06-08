@@ -38,7 +38,7 @@
 			margin-bottom: 50px;
 		}
 		#sortSelector {
-
+			text-align: center;
 		}
 		#miniCompareView {
 			position: fixed;
@@ -48,7 +48,7 @@
 			height: 40px;
 			text-align: center;
 			font-size: 15pt;
-			color: #427DE3;
+			color: #6021A3;
 
 		}
 		input[type="text"] {

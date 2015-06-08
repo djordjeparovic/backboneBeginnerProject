@@ -27,7 +27,7 @@
 		Router : {}
 	};
 
-	window.template = function (id) {
+	window.template = function ( id ) {
 		return _.template( $('#' + id).html() );
 	};
 
@@ -208,6 +208,18 @@
 			//this.render(); // render is called in route '' so this render is not necessary
 		},
 
+		renderDealersOnly : function () {
+			carsDetailedView.hide();
+			topPageView.hide();
+			this.$el.empty();
+			this.collection.each(function(model){
+				if ( model.get('dealer') ){
+					this.addOne(model);
+				}
+			}, this);
+			return this;
+		},
+
 		render : function (){
 			carsDetailedView.hide();
 			topPageView.hide();
@@ -282,7 +294,9 @@
 			var btnSort = '<input type="button" value="Sort by Price" ' +
 			'class="btn btn-sort-price">' + 
 			'<input type="button" value="Sort by Mileage" ' +
-			'class="btn btn-sort-mileage">';
+			'class="btn btn-sort-mileage">' + 
+			'<input type="button" value="Filter Dealers" ' +
+			'class="btn btn-filter-dealers">';
 			this.$el.append( btnSort );			
 		},  
 
@@ -296,7 +310,8 @@
 
 		events : { 
 			'click :button.btn-sort-price' : 'sortByPrice',
-			'click :button.btn-sort-mileage' : 'sortByMileage'
+			'click :button.btn-sort-mileage' : 'sortByMileage',
+			'click :button.btn-filter-dealers' : 'filterDealers'
 		},
 
 		/* da li je bolje imati evente ili samo staviti klasican href 
@@ -357,6 +372,10 @@
 			carsCollection.sort();
 			// ovo treba da bude hendlovano preko eventa u carsView i carsCollection 
 			allCarsView.render();
+		}, 
+
+		filterDealers : function () {
+			allCarsView.renderDealersOnly();
 		}
   	});
   	var miniRibbonSort = new App.Views.RibbonSort;
@@ -413,6 +432,10 @@
 			});
 			allCarsView.render();
 			this.render();
+		}, 
+
+		hide : function () {
+			this.$el.hide();
 		}
 	});
 
@@ -450,6 +473,7 @@
 		}, 
 
 		compareCars : function () {
+			miniCompareView.hide();
 			carsCompareView.render();
 			topPageView.show();
 			miniRibbonSort.hide();
