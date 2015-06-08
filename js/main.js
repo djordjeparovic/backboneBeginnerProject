@@ -76,6 +76,18 @@
 			selected : "",
 			dealer : "",
 			phone : "064 123 1234"
+		},
+		{
+			id: 7,
+			title : "Range Rover",
+			price : 95000,
+			mileage : 150000,
+			transmission : "Manual",
+			noOfPics : 10,
+			imageUrl: "images/rover.jpg",
+			selected : "",
+			dealer : "",
+			phone : "064 123 1234"
 		}
 	];
 
@@ -355,7 +367,7 @@
 		},
 
 		/* da li je bolje imati evente ili samo staviti klasican href 
-		tj. da li da pravim events objekat ili da dugme bude href (ako moze tako)
+		tj. da li da pravim events objekat ili da dugme bude href (ako moze)
 		*/
 		priceSortOrder : 1, 
 
@@ -399,7 +411,8 @@
 			var numOfSelectedCars = 0;
 			var divString = "";
 			var add = "";
-			var butn = '<input type="button" class="btn btn-compare" value="Compare">';
+			var butn = '<input type="button" class="btn btn-compare" value="Compare">' + 
+			'<input type="button" class="btn btn-red btn-compare-X" value="X">';
 			// find all selected cars
 			this.collection.each(function(model){
 				if ( model.get('selected') ){
@@ -424,12 +437,21 @@
 		}, 
 
 		events : {
-			'click :button.btn-compare' : 'compareFun'
+			'click :button.btn-compare' : 'compareFun',
+			'click :button.btn-compare-X' : 'cancel'
 		}, 
 
 		compareFun : function () {
 			allCarsView.hide();
 			routes.navigate('compare', {trigger : true});
+		}, 
+
+		cancel : function (){
+			this.collection.each( function ( model ) {
+				model.set('selected', false);
+			});
+			allCarsView.render();
+			this.render();
 		}
 	});
 
