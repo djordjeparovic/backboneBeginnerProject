@@ -194,7 +194,8 @@
 			redovi = redovi + "<tr><td>Model</td><td>" + car.get('title') 
 			+ "</td></tr><tr><td>Price</td><td>$" +car.get('price') 
 			+ "</td></tr><tr><td>Mileage</td><td>" + car.get('mileage') + 
-			"</td></tr><tr><td>Transmission</td><td>" + car.get('transmission') + "<tr><td>Phone</td><td>" 
+			"</td></tr><tr><td>Transmission</td><td>" + car.get('transmission') + 
+			"<tr><td>Phone</td><td>" 
 			+ car.get('phone') + "</td></tr>";
 			if ( car.get('imageUrl') ){
 				imageUrl = '<img src="' + car.get('imageUrl') + '">';
@@ -213,7 +214,7 @@
 	});
 	
 	App.Views.GoBackView = Backbone.View.extend({
-		el : $('#sortSelector'),
+		el : $('#goingBack'),
 
 		initialize : function () {
 			this.render();
@@ -299,7 +300,8 @@
 					numOfSelectedCars += 1;
 					var littleDiv = '<div class="subDiv" ><p>' + model.get('title') + 
 					'</p><p>$' + model.get('price') +'</p><p>' + model.get('mileage') + 
-					'</p>' + '<p>' + model.get('transmission') + '</p>' + '<img src="' + model.get('imageUrl') + '"></div>';
+					'</p>' + '<p>' + model.get('transmission') + '</p>' + '<img src="' + 
+					model.get('imageUrl') + '"></div>';
 					mainDiv.append(littleDiv);
 				}
 			}, this );
@@ -317,43 +319,22 @@
 
 	var carsCompareView = new App.Views.CompareView( { collection : carsCollection } );
 
-	App.Router = Backbone.Router.extend({
-		routes : {
-			'' : 'index', 
-			'details/:id' : 'moreInfo',
-			'compare' : 'compareCars',
-			'*other' : 'unknownRoute' // handle unknown router 
-			// (probably it should go to index)
+	App.Views.RibbonSort = Backbone.View.extend({
+		el : $('sortSelector'), 
+
+		intialize : function () {
+
 		}, 
 
+		render : function () {
 
-		index : function () { 
-			carsCompareView.render();
-			topPageView.hide();
-			allCarsView.render();
-			carsCompareView.hide();
-		}, 
-
-		moreInfo : function (id) {
-			topPageView.show();
-			carsDetailedView.render(id);
-			allCarsView.hide();
-		}, 
-
-		unknownRoute : function (url){
-			alert("Unknown URL : " + url);
-		}, 
-
-		compareCars : function () {
-			carsCompareView.render();
-			topPageView.show();
 		}
-	});
 
-	var routes = new App.Router; 
-	Backbone.history.start(); // Start monitoring hash changes 
+		// da li je bolje imati evente ili samo staviti klasican href
+  	});
 
-	App.Views.MiniCompareView = Backbone.View.extend({
+
+  		App.Views.MiniCompareView = Backbone.View.extend({
 		el : $('#miniCompareView'),
 
 		initialize : function () {
@@ -398,5 +379,49 @@
 	});
 
 	var miniCompareView = new App.Views.MiniCompareView({ collection : carsCollection });
+
+	App.Router = Backbone.Router.extend({
+		routes : {
+			'' : 'index', 
+			'details/:id' : 'moreInfo',
+			'compare' : 'compareCars',
+			'sort/*type' : 'sort',
+			'*other' : 'unknownRoute', // handle unknown router 			
+			// (probably it should go to index)
+		}, 
+
+
+		index : function () { 
+			carsCompareView.render();
+			topPageView.hide();
+			allCarsView.render();
+			carsCompareView.hide();
+			miniCompareView.render();
+		}, 
+
+		moreInfo : function (id) {
+			topPageView.show();
+			carsDetailedView.render(id);
+			allCarsView.hide();
+		}, 
+
+		unknownRoute : function (url){
+			alert("Unknown URL : " + url);
+		}, 
+
+		compareCars : function () {
+			carsCompareView.render();
+			topPageView.show();
+		}, 
+
+		sort : function ( type ){
+
+		}
+	});
+
+	var routes = new App.Router; 
+	Backbone.history.start(); // Start monitoring hash changes 
+
+
 
 }());
