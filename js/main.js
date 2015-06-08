@@ -1,7 +1,7 @@
 'use strict';
 (function (){
 	var debug = function (v){
-		//console.log(v);   
+		//console.log("[ CALLED: " + v + "() ]");   
 	};
 	/* "database" */
 	window.CarData=[{id:1,title:"Ford Freemont",price:2223,mileage:190343,
@@ -44,35 +44,23 @@
 		},
 
 		validate : function (attrs, opts) {
-			debug("[ called : App.Models.Car.validate() ]");
+			debug("App.Models.Car.validate");
 			if ( !attrs.title ) {
 				return "Title shouldn't be empty";
 			}
 		}
-		
 	});
 
 	App.Views.ListCarItem = Backbone.View.extend({
 		templateShow : template('listCarItemView'), 
-		templateEdit : template('listCarItemEdit'), 
+		templateEdit : template('listCarItemEdit'),
 
-		initialize : function () { 
-			debug("[ called : App.Views.ListCarItem.intialize() ]");
-			this.render(this.templateShow);
-		},
+		initialize : function () {
+			this.render( this.templateShow );
+		}, 
 
 		render : function (template) {
-			debug("[ called : App.Views.listCarItem.render() ]");
-			var elem = template( this.model.toJSON() );
-			
-			if ( this.model.get('dealer') ){
-				var deal = '<p class="dealerName rounded">Dealer: ' + 
-				this.model.get('dealer') + '</p>';
-				elem = $(elem).prepend(deal);
-				elem = $(elem).addClass('dealer');
-			}
-			this.$el.html( elem );
-			return this;
+			this.$el.html( template( this.model.toJSON() ) );
 		},
 
 		events : {
@@ -81,28 +69,24 @@
 			'click :checkbox' : 'clickedCheck', 
 			'click :button.btn-cancel' : 'cancel',
 			'click :button.btn-save' : 'save'
-		},
+		}, 
 
-		moreInfo : function (id) {
-			var carId = $(id.currentTarget.parentElement.parentElement)
-			.find('#carDiv').attr('class');
+		moreInfo : function ( e ) { // dep : #listCarItemView template in index.html
+			var carId = $( e.target.parentElement.parentElement ).find('.carDiv').data('carid');
 			routes.navigate('details/' + carId, { trigger : true });
 		}, 
 
-		clickedCheck : function (e) {
-			var parent = e.currentTarget.parentElement.
-			parentElement.parentElement;
-			var id = parseInt( $(parent).find('#carDiv').attr('class') );
-			/* Find selected model in carsCollection and set selected attribute */
-			var oCar = carsCollection.get({id : id});
-			oCar.get('selected')?oCar.set({ selected : "" }):oCar.
-			set({ selected : "checked" });
-			// side conclusion : Backbone.Collection takes only references to objects
-			miniCompareView.render();
+		edit : function (){
+			this.render( this.templateEdit );
 		}, 
 
-		edit : function () {
-			this.render( this.templateEdit );
+		clickedCheck : function ( e ) {
+			var carId = $( e.target.parentElement.parentElement.parentElement )
+				.find('.carDiv').data('carid');
+			/* Find selected model in carsCollection and set selected attribute */
+			var oCar = carsCollection.get({id : carId});
+			oCar.get('selected')?oCar.set({ selected : "" }):oCar.set({ selected : "checked" });
+			miniCompareView.render(); // <- needs custom event, but works for now (end forever prob.)
 		}, 
 
 		cancel : function () {
@@ -110,23 +94,23 @@
 		}, 
 
 		save : function (e) {
-			var parent = e.currentTarget.parentElement.parentElement;
 			var newObj = {};
-
 			newObj.title = this.getValue("inputTitle", e);
 			newObj.price = this.getValue("inputPrice", e); 
 			newObj.mileage = this.getValue("inputMileage", e); 
 			newObj.transmission = this.getValue("inputTransmission", e);
-
 			this.model.set(newObj, { validate : true });
 			this.render( this.templateShow );
 		}, 
 
-		getValue : function (id, e) {
-			var parent = e.currentTarget.parentElement.parentElement;
-			return $(parent).find('#' + id)[0].value; //<- magic bro
+		getValue : function ( field, e ) { // dep : #listCarItemEdit template in index.html
+			return $(e.currentTarget.parentElement.parentElement).
+				find('.carDiv').find( '.' + field )[0].value;
 		}
+
 	});
+
+// ENDOFCHANGE
 
 	App.Views.DetailedCarView = Backbone.View.extend({
 		el : $("#detailedCarView"),
@@ -450,7 +434,6 @@
 			'*other' : 'unknownRoute', // handle unknown router 			
 			// (probably it should go to index)
 		}, 
-
 
 		index : function () { 
 			carsCompareView.render();

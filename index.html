@@ -19,7 +19,7 @@
 <script id="listCarItemView" type="text/template">
 	<article>
 		<div class="imageDiv"></div>
-		<div id="carDiv" class="<%= id %>">
+		<div class="carDiv" data-carId="<%= id %>">
 			<p id="title"><%= title %></p>
 			<p id="price">Price: $<%= price %></p>
 			<p id="mileage">Mileage: <%= mileage %></p>
@@ -36,11 +36,11 @@
 <script id="listCarItemEdit" type="text/template">
 	<article>
 		<div class="imageDiv"></div>
-		<div>
-			<p>Title : <input type="text" id="inputTitle" value="<%= title %>"></p>
-			<p>Price : <input type="text" id="inputPrice" value=<%= price %>></p>
-			<p>Mileage : <input type="text" id="inputMileage" value=<%= mileage %>></p>
-			<p>Transmission : <input type="text" id="inputTransmission" value=<%= transmission %>></p>
+		<div class="carDiv">
+			<p>Title : <input type="text" class="inputTitle" value="<%= title %>"></p>
+			<p>Price : <input type="text" class="inputPrice" value=<%= price %>></p>
+			<p>Mileage : <input type="text" class="inputMileage" value=<%= mileage %>></p>
+			<p>Transmission : <input type="text" class="inputTransmission" value=<%= transmission %>></p>
 		</div>
 		<div>
 			<input type="button" value="Cancel" class="btn btn-cancel">
