@@ -1,5 +1,6 @@
 'use strict';
-(function (){
+	(function (){
+
 	var debug = function (v){
 		//console.log("[ CALLED: " + v + "() ]");   
 	};
@@ -40,7 +41,8 @@
 			noOfPics : 0,
 			imageUrl : "",
 			selected : false,
-			dealer : ""
+			dealer : "", 
+			visible : true
 		},
 
 		validate : function (attrs, opts) {
@@ -51,7 +53,7 @@
 		}
 	});
 
-	App.Views.ListCarItem = Backbone.View.extend({
+	App.Views.ListCarItem = Backbone.View.extend({ // Different views by changing template
 		templateShow : template('listCarItemView'), 
 		templateEdit : template('listCarItemEdit'),
 
@@ -61,6 +63,7 @@
 
 		render : function (template) {
 			this.$el.html( template( this.model.toJSON() ) );
+			return this;
 		},
 
 		events : {
@@ -71,7 +74,8 @@
 			'click :button.btn-save' : 'save'
 		}, 
 
-		moreInfo : function ( e ) { // dep : #listCarItemView template in index.html
+
+		moreInfo : function ( e ) { // dep : #listCarItemView template data-carid in index.html
 			var carId = $( e.target.parentElement.parentElement ).find('.carDiv').data('carid');
 			routes.navigate('details/' + carId, { trigger : true });
 		}, 
@@ -95,28 +99,43 @@
 
 		save : function (e) {
 			var newObj = {};
+
 			newObj.title = this.getValue("inputTitle", e);
 			newObj.price = this.getValue("inputPrice", e); 
 			newObj.mileage = this.getValue("inputMileage", e); 
 			newObj.transmission = this.getValue("inputTransmission", e);
+
 			this.model.set(newObj, { validate : true });
 			this.render( this.templateShow );
 		}, 
 
 		getValue : function ( field, e ) { // dep : #listCarItemEdit template in index.html
 			return $(e.currentTarget.parentElement.parentElement).
-				find('.carDiv').find( '.' + field )[0].value;
+				find('.carDiv').find( '.' + field )[0].value; // <- not so smart...
 		}
-
 	});
 
-// ENDOFCHANGE
-
-	App.Views.DetailedCarView = Backbone.View.extend({
-		el : $("#detailedCarView"),
-
-		initialize : function () {
+ 	App.Views.ListCarDealerItemView = App.Views.ListCarItem.extend({ // Different views by extending
+ 		events : { // how to add only new events without copying old ones
+			'click :button.btn-moreInfo' : 'moreInfo',
+			'click :button.btn-edit' : 'edit',
+			'click :checkbox' : 'clickedCheck', 
+			'click :button.btn-cancel' : 'cancel',
+			'click :button.btn-save' : 'save',
+			'click .title' : 'alertDealer'
 		}, 
+
+		alertDealer : function () {
+			alert("Dealer : " + this.model.get('dealer'));
+		}, 
+
+		render : function ( template ) {
+			this.$el.html( template( this.model.toJSON() ) ).find('article').addClass('dealer');
+		}
+	});
+
+	App.Views.DetailedCarView = Backbone.View.extend({  // Different views by logic in render function
+		el : $("#detailedCarView"),
 
 		render :function (id) {
 			carsCompareView.hide();
@@ -125,15 +144,13 @@
 			var redovi = "";
 			var imageUrl = "";
 			if ( car.get('dealer') ) {
-				redovi = '<tr><th colspan="2">(Car Dealer) ' + car.get('dealer')
-				 + '</th><tr>';
+				redovi = '<tr><th colspan="2">(Car Dealer) ' + car.get('dealer') + '</th><tr>';
 			}
 			redovi = redovi + "<tr><td>Model</td><td>" + car.get('title') 
 			+ "</td></tr><tr><td>Price</td><td>$" +car.get('price') 
 			+ "</td></tr><tr><td>Mileage</td><td>" + car.get('mileage') + 
 			"</td></tr><tr><td>Transmission</td><td>" + car.get('transmission') + 
-			"<tr><td>Phone</td><td>" 
-			+ car.get('phone') + "</td></tr>";
+			"<tr><td>Phone</td><td>" + car.get('phone') + "</td></tr>";
 			if ( car.get('imageUrl') ){
 				imageUrl = '<img src="' + car.get('imageUrl') + '">';
 			}
@@ -141,7 +158,8 @@
 			table =  $(table).append(redovi);
 			this.$el.append( table );
 			this.$el.append( imageUrl );
-			topPageView.render('details');
+
+			topPageView.render(); 
 			return this;
 		}, 
 
@@ -149,7 +167,7 @@
 			this.$el.empty();
 		}
 	});
-	
+
 	App.Views.GoBackView = Backbone.View.extend({
 		el : $('#goingBack'),
 
@@ -182,26 +200,22 @@
 	var topPageView = new App.Views.GoBackView;
 	
 	App.Collections.Cars = Backbone.Collection.extend({
-		model : App.Models.Car
+		model : App.Models.Car, 
+
+		dealersOnly : function (){
+			this.each(function ( model ) {
+				if ( !model.get('dealer') ) {
+					model.set( { visible : false } );
+				}
+			});
+		}
 	});
 
 	App.Views.CarsView = Backbone.View.extend({
 		el : $('#listOfCars'),
+
 		initialize : function (){
 			debug("[ called: App.Views.CarsView() ]");
-			//this.render(); // render is called in route '' so this render is not necessary
-		},
-
-		renderDealersOnly : function () {
-			carsDetailedView.hide();
-			topPageView.hide();
-			this.$el.empty();
-			this.collection.each(function(model){
-				if ( model.get('dealer') ){
-					this.addOne(model);
-				}
-			}, this);
-			return this;
 		},
 
 		render : function (){
@@ -213,7 +227,12 @@
 		},
 
 		addOne: function (car) {
-			var carView = new App.Views.ListCarItem({ model : car });
+			if ( !car.get('visible') ) return;
+			if ( car.get('dealer') ){
+				var carView = new App.Views.ListCarDealerItemView( { model : car } );
+			}else {
+				var carView = new App.Views.ListCarItem({ model : car });
+			}
 			this.$el.append( carView.el );
 			return this;
 		}, 
@@ -230,9 +249,6 @@
 
 	App.Views.CompareView = Backbone.View.extend({
 		el : $('#compareCars'),
-
-		initialize : function () {
-		}, 
 
 		render : function () {
 			// collect all neccessary data and put them in array of divs
@@ -260,6 +276,7 @@
 			$('.subDiv').css({'width' : attr } );
 			return this;
 		}, 
+
 		hide : function () {
 			this.$el.empty();
 		}
@@ -298,9 +315,6 @@
 			'click :button.btn-filter-dealers' : 'filterDealers'
 		},
 
-		/* da li je bolje imati evente ili samo staviti klasican href 
-		tj. da li da pravim events objekat ili da dugme bude href (ako moze)
-		*/
 		priceSortOrder : 1, 
 		mileageSortOrder : 1,
 
@@ -318,7 +332,6 @@
 				return model.get('price'); 
 			};
 			carsCollection.sort();
-			// ovo treba da bude hendlovano preko eventa u carsView i carsCollection 
 			allCarsView.render();
 		}, 
 
@@ -327,7 +340,6 @@
 				return -model.get('price'); 
 			};
 			carsCollection.sort();
-			// ovo treba da bude hendlovano preko eventa u carsView i carsCollection 
 			allCarsView.render();
 		}, 
 
@@ -345,7 +357,6 @@
 				return model.get('mileage'); 
 			};
 			carsCollection.sort();
-			// ovo treba da bude hendlovano preko eventa u carsView i carsCollection 
 			allCarsView.render();
 		}, 
 
@@ -354,18 +365,18 @@
 				return -model.get('mileage'); 
 			};
 			carsCollection.sort();
-			// ovo treba da bude hendlovano preko eventa u carsView i carsCollection 
 			allCarsView.render();
 		}, 
 
 		filterDealers : function () {
-			allCarsView.renderDealersOnly();
+			carsCollection.dealersOnly();
+			allCarsView.render();
 		}
   	});
+
   	var miniRibbonSort = new App.Views.RibbonSort;
 
-
-  		App.Views.MiniCompareView = Backbone.View.extend({
+  	App.Views.MiniCompareView = Backbone.View.extend({
 		el : $('#miniCompareView'),
 
 		initialize : function () {
@@ -430,7 +441,7 @@
 			'' : 'index', 
 			'details/:id' : 'moreInfo',
 			'compare' : 'compareCars',
-			'sort/*type' : 'sort',
+			//'sort/*type' : 'sort',
 			'*other' : 'unknownRoute', // handle unknown router 			
 			// (probably it should go to index)
 		}, 
@@ -460,11 +471,7 @@
 			carsCompareView.render();
 			topPageView.show();
 			miniRibbonSort.hide();
-		}, 
-
-		sort : function ( type ){
-
-		}
+			}	
 	});
 
 	var routes = new App.Router; 

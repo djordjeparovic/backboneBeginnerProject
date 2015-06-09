@@ -87,6 +87,11 @@
 			padding-top: 1px;
 			margin-top: 10px;
 		}
+		.dealerRed {
+			background-color: #FF0000;
+			padding-top: 1px;
+			margin-top: 10px;
+		}		
 		.dealer:hover {
 			background-color: #7BEDCD;
 		}
