@@ -1,4 +1,5 @@
-//### zadatak: napraviti validaciju za unesene podatke, reagovanje na dugmice
+//### zadatak: napraviti view /details/id gde ce biti prikazani podaci o 
+// konkretnom automobilu 
 
 'use strict';
 	(function (){
@@ -37,7 +38,6 @@
 	};
 
 	App.Models.Car = Backbone.Model.extend({
-        //TODO: Add validation to model
 		defaults : {
 			title : "",
 			price : 0,
@@ -48,9 +48,22 @@
 			selected : false,
 			dealer : "", 
 			visible : true
+		},
+
+		validate: function (attrs, opts) {
+			if ( !attrs.title ) {
+				errorFn("Title shouldn't be empty");
+				return "Title shouldn't be empty";
+			}
+			if ( attrs.transmission !== "Manual" && attrs.transmission !== "Automatic" ){
+				errorFn("Non-valid transmission value");
+				return "Non-valid transmission value";
+			}
+			if(!attrs.mileage ||  attrs.mileage < 0) {
+				errorFn("Mileage not valid");
+				return "Mileage not valid";
+			}
 		}
-
-
 	});
 
 	App.Views.ListCarItem = Backbone.View.extend({ // Different views by changing template
@@ -79,11 +92,10 @@
 		},
 
 		cancel : function () {
-            //TODO: Add event handler for Cancel button
+			this.render( this.templateShow );
 		}, 
 
 		save : function (e) {
-            //TODO: Fix save button handler
 			var newObj = {};
 
 			newObj.title = this.getValue("inputTitle", e);
@@ -91,7 +103,8 @@
 			newObj.mileage = this.getValue("inputMileage", e); 
 			newObj.transmission = this.getValue("inputTransmission", e);
 
-			this.model.set(newObj);
+			this.model.set(newObj, { validate : true });
+			this.render( this.templateShow );
 		} ,
 
 		getValue : function ( field, e ) { // dep : #listCarItemEdit template in index.html
@@ -101,10 +114,19 @@
 	});
 
  	App.Views.ListCarDealerItemView = App.Views.ListCarItem.extend({ // Different views by extending
-        //TODO: Add extra events for dealer (eg click on title)
         initialize : function (options){
             App.Views.ListCarItem.prototype.initialize.call(this, options);
         },
+
+        events : function() {
+            return _.extend({}, App.Views.ListCarItem.prototype.events, {
+                'click .title': 'alertDealer'
+            });
+        },
+
+		alertDealer : function () {
+			alert("Dealer : " + this.model.get('dealer'));
+		},
 
 		render : function ( template ) {
 			this.$el.html( template( this.model.toJSON() ) ).find('article').addClass('dealer');
@@ -113,13 +135,14 @@
 	});
 	
 	App.Collections.Cars = Backbone.Collection.extend({
-		model : App.Models.Car
+		model : App.Models.Car,
 	});
 
 	App.Views.CarsView = Backbone.View.extend({
 		el : $('#listOfCars'),
 
 		initialize : function (){
+			debug("[ called: App.Views.CarsView() ]");
 		},
 
 		render : function (){
@@ -145,14 +168,26 @@
 		}
 	});
 
+	// TODO: dodati view
+
 	var carsCollection = new App.Collections.Cars( CarData );
  	var allCarsView = new App.Views.CarsView({ collection : carsCollection });
 
 	App.Router = Backbone.Router.extend({
-
-        //TODO: Add routes handling
 		routes : {
+			'' : 'index',
+			'*other' : 'unknownRoute' // handle unknown router
+			// (probably it should go to index)
 
+			// TODO: dodati rutu
+		}, 
+
+		index : function () {
+			allCarsView.render();
+		}, 
+
+		unknownRoute : function (url){
+			alert("Unknown URL : " + url);
 		}
 	});
 
@@ -160,3 +195,5 @@
 	Backbone.history.start(); // Start monitoring hash changes 
 
 }());
+
+// dodatak TODO: povezati listOfCars i detailedCarView
