@@ -139,7 +139,7 @@
 	});
 
 	App.Views.CarsView = Backbone.View.extend({
-		el : $('#listOfCars'),
+		el: $('#listOfCars'),
 
 		initialize : function (){
 			debug("[ called: App.Views.CarsView() ]");
@@ -168,27 +168,48 @@
 		}
 	});
 
-	// TODO: dodati view
+	App.Views.DetailedCarView = Backbone.View.extend({
+		el: $('#listOfCars'), 
+		initialize: function() {
+			this.template = template( 'detailedCarViewTemplate' );
+		}, 
+		render: function(id) {
+			this.$el.empty();
+			var model = this.collection.get( {id: id} );
+			var data = {
+				title: model.get('title'),
+				price: model.get('price'),
+				mileage: model.get('mileage'), 
+				transmission: model.get('transmission'),
+				phone: model.get('phone'),
+				imageUrl: model.get('imageUrl')
+			};
+			this.$el.html( this.template(data) );
+		}
+	});
 
 	var carsCollection = new App.Collections.Cars( CarData );
- 	var allCarsView = new App.Views.CarsView({ collection : carsCollection });
+ 	var allCarsView = new App.Views.CarsView({ collection: carsCollection });
+ 	var detailsPage = new App.Views.DetailedCarView({ collection: carsCollection });
 
 	App.Router = Backbone.Router.extend({
-		routes : {
-			'' : 'index',
-			'*other' : 'unknownRoute' // handle unknown router
+		routes: {
+			'': 'index',
+			'details/:id': 'showDetailPage',
+			'*other': 'unknownRoute' // handle unknown router
 			// (probably it should go to index)
-
-			// TODO: dodati rutu
 		}, 
 
-		index : function () {
+		index: function () {
 			allCarsView.render();
 		}, 
 
-		unknownRoute : function (url){
+		unknownRoute: function (url){
 			alert("Unknown URL : " + url);
-		}
+		}, 
+		showDetailPage: function(id) {
+			detailsPage.render(id);
+		} 
 	});
 
 	var routes = new App.Router; 

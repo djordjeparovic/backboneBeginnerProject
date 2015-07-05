@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Car Demo Backbone App v01</title>
+	<title>Car Demo Backbone App v02</title>
 	<link rel="stylesheet" type="text/css" href="styles/style.css">
 </head>
 <body>
@@ -45,8 +45,18 @@
 		</div>
 	</article>
 </script>
-<!--<script id="detailedCarViewTemplate" type="text/template">-->
-<!--</script>-->
+
+<script id="detailedCarViewTemplate" type="text/template">
+<img src="<%= imageUrl %>">
+<table><tbody>
+<tr><td>Model</td><td> <%= title %> </td></tr>
+<tr><td>Price</td><td> $<%= price %> </td></tr>
+<tr><td>Mileage</td><td> <%= mileage %> </td></tr>
+<tr><td>Transmission</td><td> <%= transmission %> </td></tr>
+<tr><td>Phone</td><td> <%= phone %> </td></tr>
+</tbody</table>
+</script>
+
 <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
 <script type="text/javascript" src="bower_components/underscore/underscore.js"></script>
 <script type="text/javascript" src="bower_components/backbone/backbone.js"></script>
