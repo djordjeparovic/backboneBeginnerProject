@@ -1,5 +1,4 @@
-//### zadatak: napraviti view /details/id gde ce biti prikazani podaci o 
-// konkretnom automobilu 
+//### zadatak: napraviti MoreInfo dugme, checkbox
 
 'use strict';
 	(function (){
@@ -216,5 +215,3 @@
 	Backbone.history.start(); // Start monitoring hash changes 
 
 }());
-
-// dodatak TODO: povezati listOfCars i detailedCarView
