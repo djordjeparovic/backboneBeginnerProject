@@ -1,4 +1,4 @@
-//### zadatak: napraviti MoreInfo dugme, checkbox
+//### 
 
 'use strict';
 	(function (){
@@ -26,10 +26,10 @@
 	selected:"",dealer:"",phone:"064 123 1234"}];
 
 	window.App = {
-		Models : {}, 
-		Views : {},
-		Collections : {}, 
-		Router : {}
+		Models: {}, 
+		Views: {},
+		Collections: {}, 
+		Router: {}
 	};
 
 	window.template = function ( id ) {
@@ -37,16 +37,16 @@
 	};
 
 	App.Models.Car = Backbone.Model.extend({
-		defaults : {
-			title : "",
-			price : 0,
-			mileage : 0,
-			transmission : "",
-			noOfPics : 0,
-			imageUrl : "",
-			selected : false,
-			dealer : "", 
-			visible : true
+		defaults: {
+			title: "",
+			price: 0,
+			mileage: 0,
+			transmission: "",
+			noOfPics: 0,
+			imageUrl: "",
+			selected: false,
+			dealer: "", 
+			visible: true
 		},
 
 		validate: function (attrs, opts) {
@@ -66,35 +66,35 @@
 	});
 
 	App.Views.ListCarItem = Backbone.View.extend({ // Different views by changing template
-		templateShow : template('listCarItemView'), 
-		templateEdit : template('listCarItemEdit'),
+		templateShow: template('listCarItemView'), 
+		templateEdit: template('listCarItemEdit'),
 
-		initialize : function () {
+		initialize: function () {
 			this.render( this.templateShow );
 		}, 
 
-		render : function (template) {
+		render: function (template) {
 			this.$el.html( template( this.model.toJSON() ) );
 			return this;
 		},
 
-		events : {
-			'click :button.btn-moreInfo' : 'moreInfo',
-			'click :button.btn-edit' : 'edit',
-			'click :checkbox' : 'clickedCheck', 
-			'click :button.btn-cancel' : 'cancel',
-			'click :button.btn-save' : 'save'
+		events: {
+			'click :button.btn-moreInfo': 'moreInfo',
+			'click :button.btn-edit': 'edit',
+			'click :checkbox': 'clickedCheck', 
+			'click :button.btn-cancel': 'cancel',
+			'click :button.btn-save': 'save'
 		}, 
 
-		edit : function (){
+		edit: function (){
 			this.render( this.templateEdit );
 		},
 
-		cancel : function () {
+		cancel: function () {
 			this.render( this.templateShow );
 		}, 
 
-		save : function (e) {
+		save: function (e) {
 			var newObj = {};
 
 			newObj.title = this.getValue("inputTitle", e);
@@ -102,49 +102,52 @@
 			newObj.mileage = this.getValue("inputMileage", e); 
 			newObj.transmission = this.getValue("inputTransmission", e);
 
-			this.model.set(newObj, { validate : true });
+			this.model.set(newObj, { validate: true });
 			this.render( this.templateShow );
-		} ,
+		},
+		moreInfo: function() {
+			routes.navigate('details/'+this.model.get('id'), {trigger: true});
+		},
 
-		getValue : function ( field, e ) { // dep : #listCarItemEdit template in index.html
+		getValue: function ( field, e ) { // dep: #listCarItemEdit template in index.html
 			return $(e.currentTarget.parentElement.parentElement).
 				find('.carDiv').find( '.' + field )[0].value; // <- not so smart...
 		}
 	});
 
  	App.Views.ListCarDealerItemView = App.Views.ListCarItem.extend({ // Different views by extending
-        initialize : function (options){
+        initialize: function (options){
             App.Views.ListCarItem.prototype.initialize.call(this, options);
         },
 
-        events : function() {
+        events: function() {
             return _.extend({}, App.Views.ListCarItem.prototype.events, {
                 'click .title': 'alertDealer'
             });
         },
 
-		alertDealer : function () {
-			alert("Dealer : " + this.model.get('dealer'));
+		alertDealer: function () {
+			alert("Dealer: " + this.model.get('dealer'));
 		},
 
-		render : function ( template ) {
+		render: function ( template ) {
 			this.$el.html( template( this.model.toJSON() ) ).find('article').addClass('dealer');
             return this;
 		}
 	});
 	
 	App.Collections.Cars = Backbone.Collection.extend({
-		model : App.Models.Car,
+		model: App.Models.Car,
 	});
 
 	App.Views.CarsView = Backbone.View.extend({
 		el: $('#listOfCars'),
 
-		initialize : function (){
+		initialize: function (){
 			debug("[ called: App.Views.CarsView() ]");
 		},
 
-		render : function (){
+		render: function (){
 			this.$el.empty();
 			this.collection.each(this.addOne ,this);
 			return this;
@@ -154,15 +157,15 @@
 			if ( !car.get('visible') ) return;
             var carView;
 			if ( car.get('dealer') ){
-				carView = new App.Views.ListCarDealerItemView( { model : car } );
+				carView = new App.Views.ListCarDealerItemView( { model: car } );
 			}else {
-				carView = new App.Views.ListCarItem({ model : car });
+				carView = new App.Views.ListCarItem({ model: car });
 			}
 			this.$el.append( carView.el );
 			return this;
 		}, 
 
-		hide : function () {
+		hide: function () {
 			this.$el.empty();
 		}
 	});
@@ -204,7 +207,7 @@
 		}, 
 
 		unknownRoute: function (url){
-			alert("Unknown URL : " + url);
+			alert("Unknown URL: " + url);
 		}, 
 		showDetailPage: function(id) {
 			detailsPage.render(id);
