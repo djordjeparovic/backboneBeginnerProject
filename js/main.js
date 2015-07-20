@@ -1,4 +1,4 @@
-//### 
+//### Problem stage 4: implement sorting by price, mileage (buttons at top of page)
 
 'use strict';
 	(function (){
