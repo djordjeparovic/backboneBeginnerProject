@@ -1,238 +1,132 @@
 (function (){
-	var debug = function (v){
-		console.log(v);   
-	};
-	/* Imaginarna baza podataka */
-	window.CarData = [
-	{
-			id: "1",
-			title : "Ford Freemont",
-			price : "$12,223",
-			mileage : "190,343",
-			transmission : "Automatic",
-			noOfPics : "3",
-			imageUrl: "google.rs",
-			selected : "false"
-		},
-		{
-			id: "2",
-			title : "Dodge New",
-			price : "$45,000",
-			mileage : "34,200",
-			transmission : "Manual",
-			noOfPics : "1",
-			imageUrl: "google.rs",
-			selected : "false"
-		},
-		{
-			id: "3",
-			title : "Mercedes S",
-			price : "$30,100",
-			mileage : "200,190",
-			transmission : "Manual",
-			noOfPics : "2",
-			imageUrl: "google.rs",
-			selected : "false"
-		},
-		{
-			id: "4",
-			title : "Golf kec",
-			price : "$200",
-			mileage : "300,000",
-			transmission : "Manual",
-			noOfPics : "1",
-			imageUrl: "google.rs",
-			selected : "false"
-		},
-		{
-			id: "5",
-			title : "BMW i3",
-			price : "$86,000",
-			mileage : "20",
-			transmission : "Automatic",
-			noOfPics : "10",
-			imageUrl: "google.rs",
-			selected : "false"
-		}
-		// ,
-		// {
-		// 	title : "",
-		// 	price : "",
-		// 	mileage : "",
-		// 	transmission : "",
-		// 	noOfPics : "",
-		// 	imageUrl: "",
-		//	selected : "false"  // ovaj parametar se koristi kod compare view, 
-		//inace moze se i bez njega implementirati resenje sa eventima
-		// }
-	];
 
-	/* Defining aplication */
 	window.App = {
 		Models : {}, 
 		Views : {},
+		CustomViewOptions : {},
 		Collections : {}
 	};
-
-	window.template = function (id) {
-		templ = $( '#' + id).html(); // debug
-		return _.template( $('#' + id).html() );
-	};
-
-	App.Models.Car = Backbone.Model.extend({
-		defaults : {
-			title : "",
-			price : "",
-			mileage : "",
-			transmission : "",
-			noOfPics : "",
-			imageUrl: ""
-			// dealer : ""  ako je prazno - niko, ako ima nesto poseban
+/* define views */
+	App.Views.HomePage = Backbone.View.extend({
+		el: '#wrapper',
+		initialize: function(opt){
+			this.$el = $(this.el);
 		},
+		render: function(){
+			var content = '<h4>Home Page</h4><p>This is our home, our place for work, and awesome place for fun!</p>';
+			this.$el.empty();
+			this.$el.removeAttr( 'style' );
+			this.$el.append(content);
+		}
+	});
 
-		validate : function (attrs, opts) {
-			debug("[ called : App.Models.Car.validate() ]");
-			if ( !attrs.title ) {
-				return "Title shouldn't be empty";
+	App.Views.AboutPage = Backbone.View.extend({
+		el: '#wrapper',
+		initialize: function(opt){
+			this.$el = $(this.el);
+		}, 
+		render: function(){
+			var content = '<h4>About Page</h4><p>We are software engineers, crazy people with blue blood... </p>';
+			this.$el.empty();
+			this.$el.removeAttr( 'style' );
+			this.$el.append(content);
+		}
+	});
+
+	App.Views.ContactPage = Backbone.View.extend({
+		el: '#wrapper',
+		initialize: function(opt){
+			this.$el = $(this.el);
+		},
+		render: function(){
+			var content = '<h4>Contact Page</h4><p>We can do anything for you, if we want to. Don\'t call us, fill find you.</p>';
+			this.$el.empty();
+			this.$el.removeAttr( 'style' );
+			this.$el.append(content);
+		}
+	});
+
+	App.Views.ErrorPage = Backbone.View.extend({
+		el: '#wrapper',
+		initialize: function(opt){
+			this.$el = $(this.el);
+		},
+		render: function(){
+			var content = '<h4>Error Page</h4><p>The requested page doesn\'t exist :( </p>';
+			this.$el.empty();
+			if (App.CustomViewOptions['error404'].color) {
+				var colr = App.CustomViewOptions['error404'].color;
+				this.$el.css('background-color', colr);
 			}
-		}
-		
-	});
-
-	App.Views.ListCarItem = Backbone.View.extend({
-
-		 templateShow : template('listCarItemView'), 
-		 templateEdit : template('listCarItemEdit'), 
-
-		initialize : function () { 
-			debug("[ called : App.Views.ListCarItem.intialize() ]");
-			this.render(this.templateShow);
-			//this.render(this.templateEdit);
-		},
-
-		render : function (template) {
-			debug("[ called : App.Views.listCarItem.render() ]");
-			this.$el.html( template( this.model.toJSON() ) );
-			return this;
-		},
-
-		events : {
-			'click :button.btn-moreInfo' : 'moreInfo',
-			'click :button.btn-edit' : 'edit',
-			'click :checkbox' : 'clickedCheck', 
-			'click :button.btn-cancel' : 'cancel',
-			'click :button.btn-save' : 'save'
-		},
-
-		moreInfo : function () {
-			alert("Unimplemented. moreInfo will trigger new route, where will be possible " +
-			"show all relevant information");
-		}, 
-
-		clickedCheck : function (e) {
-			// #TODO if e in collection remove(e) else push(e)
-			alert("Unimplemented. clickedCheck will trigger some operations on new View.");
-		}, 
-
-		edit : function () {
-			this.render( this.templateEdit );
-		}, 
-
-		cancel : function () {
-			this.render( this.templateShow );
-		}, 
-
-		save : function (e) {
-			var parent = e.currentTarget.parentElement.parentElement;
-			var newObj = {};
-
-			newObj.title = this.getValue("inputTitle", e);
-			newObj.price = this.getValue("inputPrice", e); 
-			newObj.mileage = this.getValue("inputMileage", e); 
-			newObj.transmission = this.getValue("inputTransmission", e);
-
-			this.model.set(newObj, { validate : true });
-			this.render( this.templateShow );
-		}, 
-
-		getValue : function (id, e) {
-			var parent = e.currentTarget.parentElement.parentElement;
-			return $(parent).find('#' + id)[0].value;
-		}
-
-	});
-
-	App.Views.ListCompareCarItem = Backbone.View.extend({
-		intialize : function () { 
-		
-		},
-
-		render : function () {
-			this.collection.each(this.addOne, this);
-		}, 
-
-		// 	title : "Ford Freemont",
-		// 	price : "$12,223",
-		// 	mileage : "190,343",
-		// 	transmission : "Automatic",
-		// 	noOfPics : "3",
-		// 	imageUrl: "google.rs",
-		// 	selected : "false"
-		// },
-		// rows : {
-		// 	title : "<td>Title</td>",
-		// 	price : "<td>"
-		// }
-
-		addOne : function (car) {
-			if ( car.selected ){
-
-			}
-			return this;
+			this.$el.append(content);
 		}
 	});
 
-	App.Collections.Cars = Backbone.Collection.extend({
-		model : App.Models.Car
+	App.CustomViewOptions = { 
+		'error404' : {
+			color: '#f00' 
+		},
+		'home': {}
+	}
+/* end of views definition */
+
+	var Router = Backbone.Router.extend({
+		routes: {
+			'': 'updateView',
+	        ':page': 'updateView',
+    	},
+    	views: {
+    		'home': App.Views.HomePage,
+    		'about': App.Views.AboutPage, 
+    		'contact': App.Views.ContactPage,
+    		'error404': App.Views.ErrorPage
+    	},
+	    updateView: function (page) {
+	    	page = page ? page : 'home';
+	    	page = Object.keys(this.views).indexOf(page) !== -1 ? page : 'error404';
+
+	        // create instance if it doesn't exist
+	        if (typeof this.views[page] === 'function') {
+	            this.views[page] = new this.views[page]( {} );
+	        }
+	        // render view
+	        this.views[page].render();
+
+	        // destroy previous active view and set new one 
+	        if (this.active) {
+	        	//this should be triggered only if we handle more views on different elements
+	            //this.active.remove();
+	        }
+	        this.active = this.views[page];
+	    }
 	});
 
-	App.Views.CarsView = Backbone.View.extend({
-		tagName: 'div',
-		initialize : function (){
-			debug("[ called: App.Views.CarsView() ]");
-			this.render();
-		},
+	var router = new Router();
 
-		render : function (){
-			this.collection.each(this.addOne ,this);
-			return this;
+	/* Code below this line is for demostration purpose only (making this example works) */
+	App.Views.NavigationView = Backbone.View.extend({
+		el: '#nav',
+		initialize: function(){
+			this.$el = $(this.el);
 		},
+		events: {
+			'click #home': 'goHome',
+			'click #about': 'goAbout', 
+			'click #contact': 'goContact'
+		}, 
 
-		addOne: function (car) {
-			var carView = new App.Views.ListCarItem({ model : car });
-			this.$el.append( carView.el );
-			return this;
+		goHome: function(){
+			router.navigate('home', {trigger: true});
+		},
+		goAbout: function(){
+			router.navigate('about', {trigger: true});
+		},
+		goContact: function(){
+			router.navigate('contact', {trigger: true});
 		}
 	});
-
-
-	App.Collections.Compare = Backbone.Collection.extend({
-
-	});
-
-	App.Views.CompareView = Backbone.View.extend({
-		// #TODO
-	});
-
-
-/* Using application */
-eV = undefined; //variable exposed to global scope (testing/studying purpose)
-
-var automobili = new App.Collections.Cars( CarData );
-debug(automobili);
-var automobiliView = new App.Views.CarsView({ collection : automobili });
-$('#listOfCars').append(automobiliView.el);
-eV = automobiliView;
+	new App.Views.NavigationView();
+	Backbone.history.start();
 }());
 
 
